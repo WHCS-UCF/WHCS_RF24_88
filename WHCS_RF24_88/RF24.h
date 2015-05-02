@@ -537,6 +537,13 @@ public:
    *
    */
   void disableCRC( void ) ;
+  
+  /*
+   * Sets the necessary configuration bit for enabling RX interrupts.
+   * Interrupts on the NRF are active low. The IRQ pin goes low whenever
+   * one of the status bits for an activated interrupt is set.
+   */
+  void setRXInterruptEnabled( void );
 
   /**@}*/
   /**

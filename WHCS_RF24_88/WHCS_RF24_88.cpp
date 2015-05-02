@@ -363,19 +363,19 @@ void RF24::printDetails(void)
 
 void RF24::begin(void)
 {
-	serialSendString("entering begin.\n\r");
+	USART_sendString("entering begin.\n\r");
 	// Initialize pins
 	pinMode(ce_pin,OUTPUT);
 	pinMode(csn_pin,OUTPUT);
-	serialSendString("Set Output\n\r");
+	USART_sendString("Set Output\n\r");
 
 	// Initialize SPI bus
 	InitSPI();
-	serialSendString("Initted SPI\n\r");
+	USART_sendString("Initted SPI\n\r");
 
 	ce(LOW);
 	csn(HIGH);
-	serialSendString("Set LOW&HIGH\n\r");
+	USART_sendString("Set LOW&HIGH\n\r");
 
 	// Must allow the radio time to settle else configuration bits will not necessarily stick.
 	// This is actually only required following power up but some settling time also appears to
@@ -384,20 +384,20 @@ void RF24::begin(void)
 	// Technically we require 4.5ms + 14us as a worst case. We'll just call it 5ms for good measure.
 	// WARNING: Delay is based on P-variant whereby non-P *may* require different timing.
 	_delay_ms( 5 ) ;
-	serialSendString("Delayed 5 ms\n\r");
+	USART_sendString("Delayed 5 ms\n\r");
 	
 	//The first read has been messing up for some reason. Everything else is fine. If you do a dummy status read this fixes it.
 	get_status();
-	serialSendString("Got status\n\r");
+	USART_sendString("Got status\n\r");
 	// Set 1500uS (minimum for 32B payload in ESB@250KBPS) timeouts, to make testing a little easier
 	// WARNING: If this is ever lowered, either 250KBS mode with AA is broken or maximum packet
 	// sizes must never be used. See documentation for a more complete explanation.
 	write_register(SETUP_RETR,(0b0100 << ARD) | (0b1111 << ARC));
-	serialSendString("Got status");
+	USART_sendString("Got status");
 
 	// Restore our default PA level
 	setPALevel( RF24_PA_MAX ) ;
-	serialSendString("SetPALevel\n\r");
+	USART_sendString("SetPALevel\n\r");
 
 	// Determine if this is a p or non-p RF24 module and then
 	// reset our data rate back to default value. This works
@@ -426,11 +426,11 @@ void RF24::begin(void)
 	// This channel should be universally safe and not bleed over into adjacent
 	// spectrum.
 	setChannel(76);
-	serialSendString("set channel\n\r");
+	USART_sendString("set channel\n\r");
 	// Flush buffers
 	flush_rx();
 	flush_tx();
-	serialSendString("flushed buffers.\n\r");
+	USART_sendString("flushed buffers.\n\r");
 }
 
 /****************************************************************************/
@@ -1019,6 +1019,14 @@ void RF24::disableCRC( void )
 void RF24::setRetries(uint8_t delay, uint8_t count)
 {
 	write_register(SETUP_RETR,(delay&0xf)<<ARD | (count&0xf)<<ARC);
+}
+
+/****************************************************************************/
+
+//This does the exact opposite of what it says. Delete this.
+void RF24::setRXInterruptEnabled(){
+	uint8_t enable = read_register(CONFIG) | _BV(MASK_RX_DR) ;
+	write_register( CONFIG, enable ) ;
 }
 
 // vim:ai:cin:sts=2 sw=2 ft=cpp
