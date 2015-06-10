@@ -6,6 +6,10 @@
  */ 
 
 
+#ifndef F_CPU
+#define F_CPU 16000000UL
+#pragma message("WHCS_RF24 Library did not find CPU speed set, setting to default.")
+#endif
 
 #include "RF24.h"
 #include "MEGA88A_UART_LIBRARY.h"
@@ -1022,12 +1026,6 @@ void RF24::setRetries(uint8_t delay, uint8_t count)
 }
 
 /****************************************************************************/
-
-//This does the exact opposite of what it says. Delete this.
-void RF24::setRXInterruptEnabled(){
-	uint8_t enable = read_register(CONFIG) | _BV(MASK_RX_DR) ;
-	write_register( CONFIG, enable ) ;
-}
 
 // vim:ai:cin:sts=2 sw=2 ft=cpp
 
