@@ -421,6 +421,9 @@ void RF24::begin(void)
 	
 	// Disable dynamic payloads, to match dynamic_payloads_enabled setting
 	write_register(DYNPD,0);
+	
+	disableMaxRetransmitInterrupt();
+	disableTransmissionInterrupt();
 
 	// Reset current status
 	// Notice reset and flush is the last thing we do
@@ -1020,9 +1023,26 @@ void RF24::disableCRC( void )
 }
 
 /****************************************************************************/
+
 void RF24::setRetries(uint8_t delay, uint8_t count)
 {
 	write_register(SETUP_RETR,(delay&0xf)<<ARD | (count&0xf)<<ARC);
+}
+
+/****************************************************************************/
+
+void RF24::disableTransmissionInterrupt()
+{
+	uint8_t disable = read_register(CONFIG) | _BV(MASK_TX_DS) ;
+	write_register( CONFIG, disable ) ;
+}
+
+/****************************************************************************/
+
+void RF24::disableMaxRetransmitInterrupt()
+{
+	uint8_t disable = read_register(CONFIG) | _BV(MASK_MAX_RT) ;
+	write_register( CONFIG, disable ) ;
 }
 
 /****************************************************************************/
